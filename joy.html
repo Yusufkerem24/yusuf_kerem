@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hava Durumu API Uygulaması</title>
+</head>
+<body>
+    <h1>Ülke Seçin ve Hava Durumunu Görün</h1>
+    
+    <!-- Ülke Seçim Alanı -->
+    <label for="country">Ülke Seçin:</label>
+    <select id="country">
+        <option value="turkey">Türkiye</option>
+        <option value="usa">Amerika</option>
+        <option value="uk">Birleşik Krallık</option>
+        <option value="france">Fransa</option>
+        <option value="germany">Almanya</option>
+    </select>
+
+    <!-- Hava Durumu Butonu -->
+    <button id="get-weather">Hava Durumunu Göster</button>
+
+    <!-- Hava Durumu Bilgileri Burada Gösterilecek -->
+    <div id="weather-info">
+        <p id="weather-condition"></p>
+        <p id="temperature"></p>
+    </div>
+
+    <script>
+        // Ülke ve koordinat verileri
+        const countryCoordinates = {
+            turkey: { latitude: 39.9334, longitude: 32.8597 }, // Türkiye'nin koordinatları
+            usa: { latitude: 37.0902, longitude: -95.7129 },  // Amerika'nın koordinatları
+            uk: { latitude: 51.5074, longitude: -0.1278 },    // Birleşik Krallık'ın koordinatları
+            france: { latitude: 46.6034, longitude: 1.8883 }, // Fransa'nın koordinatları
+            germany: { latitude: 51.1657, longitude: 10.4515 } // Almanya'nın koordinatları
+        };
+
+        // Buton ve country select elementini seçme
+        const button = document.getElementById('get-weather');
+        const countrySelect = document.getElementById('country');
+        const weatherCondition = document.getElementById('weather-condition');
+        const temperature = document.getElementById('temperature');
+        
+        button.addEventListener('click', () => {
+            const selectedCountry = countrySelect.value;
+
+            // Seçilen ülkenin koordinatlarını al
+            const coordinates = countryCoordinates[selectedCountry];
+
+            // Open-Meteo API URL'si
+            const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coordinates.latitude}&longitude=${coordinates.longitude}&current_weather=true`;
+
+            // API'den hava durumu verisini çekme
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.current_weather) {
+                        // Veriyi işleme ve sayfada gösterme
+                        const weatherData = data.current_weather;
+                        weatherCondition.textContent = `Hava Durumu: ${weatherData.weathercode}`;
+                        temperature.textContent = `Sıcaklık: ${weatherData.temperature}°C`;
+                    } else {
+                        weatherCondition.textContent = "Hava durumu verisi bulunamadı.";
+                        temperature.textContent = "";
+                    }
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    weatherCondition.textContent = "Bir hata oluştu.";
+                    temperature.textContent = "";
+                });
+        });
+    </script>
+</body>
+</html>
+
+
+
